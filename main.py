@@ -56,4 +56,51 @@ def get_participant():
         col_indices = {h: headers.index(h) for h in headers}
 
         for row in records:
-            name = row[col_indices.get("Name", -1)].strip().lower() if "Name" in col_indices els]()
+            name = row[col_indices.get("Name", -1)].strip().lower() if "Name" in col_indices else ""
+            if not name:
+                continue
+            parts = name.split()
+            if len(parts) < 2:
+                continue
+            row_first_name = parts[0].strip().lower()
+            row_last_name = parts[-1].strip().lower()
+
+            if row_first_name == first_name and row_last_name == last_name:
+                response = {
+                    "result": {
+                        "Overall Place": row[col_indices.get("Overall Place", "")],
+                        "Name": row[col_indices.get("Name", "")],
+                        "Clock Time": row[col_indices.get("Clock Time", "")],
+                        "Pace": row[col_indices.get("Pace", "")],
+                        "Gender": row[col_indices.get("Gender", "")],
+                        "Age": row[col_indices.get("Age", "")],
+                        "Bib": row[col_indices.get("Bib", "")],
+                        "PLP%": row[col_indices.get("PLP%", "")],
+                        "City/Town": row[col_indices.get("City/Town", "")],
+                        "State": row[col_indices.get("State", "")],
+                        "Chip Time": row[col_indices.get("Chip Time", "")],
+                        "Chip Pace": row[col_indices.get("Chip Pace", "")],
+                        "Country": row[col_indices.get("Country", "")],
+                        "Age Percentage": row[col_indices.get("Age Percentage", "")],
+                        "Division Place": row[col_indices.get("Division Place", "")],
+                        "Division": row[col_indices.get("Division", "")]
+                    }
+                }
+                return jsonify(response)
+
+        return jsonify({"error": "Participant not found."}), 404
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/debug_headers', methods=['GET'])
+def debug_headers():
+    try:
+        headers = worksheet.row_values(1)
+        return jsonify({"headers": headers})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 3000)))
